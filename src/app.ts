@@ -1,3 +1,33 @@
+///Validation
+interface Validatable {
+	value: string | number;
+	required?: boolean;
+	minLength?: number;
+	maxLength?: number;
+	min?: number;
+	max?: number;
+}
+
+function validate(validatableInput: Validatable): boolean {
+	let isValid = true;
+	if (validatableInput.required) {
+		isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+	}
+	if (validatableInput.minLength != null && typeof validatableInput.value === 'string') {
+		isValid = isValid && validatableInput.value.length >= validatableInput.minLength;
+	}
+	if (validatableInput.maxLength != null && typeof validatableInput.value === 'string') {
+		isValid = isValid && validatableInput.value.length <= validatableInput.maxLength;
+	}
+	if (validatableInput.min != null && typeof validatableInput.value === 'number') {
+		isValid = isValid && validatableInput.value >= validatableInput.min;
+	}
+	if (validatableInput.max != null && typeof validatableInput.value === 'number') {
+		isValid = isValid && validatableInput.value <= validatableInput.max;
+	}
+	return isValid;
+}
+
 ///autobind decorator
 function autobind(_: any, _2: string, desc: PropertyDescriptor) {
 	const originalMethod = desc.value;
@@ -41,6 +71,26 @@ class ProjectInput {
 		const enteredDesc = this.descriptionInputElement.value;
 		const enteredPeople = this.peopleInputElement.value;
 
+		const titleValidatable: Validatable = {
+			value: enteredTitle,
+			required: true,
+		};
+		const descValidatable: Validatable = {
+			value: enteredDesc,
+			required: true,
+			minLength: 5,
+		};
+		const peopleValidatable: Validatable = {
+			value: +enteredPeople,
+			required: true,
+			min: 1,
+			max: 5,
+		};
+
+		if (!validate(titleValidatable) || !validate(descValidatable) || !validate(peopleValidatable)) {
+			alert('Invalid input, please try again');
+			return;
+		}
 		return [enteredTitle, enteredDesc, +enteredPeople];
 	}
 
